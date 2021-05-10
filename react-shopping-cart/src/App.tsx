@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Page,
   Layout,
@@ -7,11 +7,10 @@ import {
 } from '@shopify/polaris'
 import { CardComponent } from './components/Card'
 
-import { Cart } from "./interfaces/Cart"
 import { Product } from "./interfaces/Product"
 
 const App: React.FC = () => {
-  const [products, setProduct] = useState<Product[]>([
+  const products: Product[] = [
     {
       id: 0,
       name: 'Product A',
@@ -26,29 +25,36 @@ const App: React.FC = () => {
       price: 13,
       tax: 5.5,
     },
-  ])
+    {
+      id: 2,
+      name: 'Product C',
+      description: 'Lorem ipsum dolor sit, amet consectetur',
+      price: 15,
+      tax: 5.5,
+    },
+  ]
 
-  const [cart, setCart] = useState<Cart>({
-    products: [
-      {
-        productId: 0,
-        quantity: 2,
-      },
-    ],
-    taxes: [
-      {
-        name: 20,
-        value: 4,
-      },
-    ],
-    totalAmountIncludingTaxes: 24,
+  const taxes: Array<{ name: number, value: number, }> = [{ name: 20, value: 4 }]
 
-  })
+  const [cart, setCart] = useState<Product[]>([])
+
+  const addToBasket = (item: Product) => {
+    setCart([...cart, item])
+  }
+
+  const removeFromBasket = (productId: number) => {
+    console.log(productId);
+
+  }
+
+  const quantityInBasket = (productId: number) => {
+    return cart.filter(product => productId === product.id).length
+  }
 
   return (
     <Page title="React Shopping Cart">
       <Layout>
-        <CardComponent data={products} />
+        <CardComponent products={products} addToBasket={addToBasket} />
         <Layout.Section secondary>
           <Card
             title="Basket"
@@ -57,21 +63,27 @@ const App: React.FC = () => {
           >
             <Card.Section title="Items">
               <List>
-                {cart.products.map((product, productId) => (
-                  <List.Item key={productId}>{product.quantity} × xxx</List.Item>
+                {products.map((product, productId) => (
+                  quantityInBasket(product.id) >= 1
+                    ? (
+                      <List.Item key={productId}>
+                        {quantityInBasket(product.id)} × {product.name}&nbsp;
+                        <button onClick={() => removeFromBasket(productId)}>-</button>
+                      </List.Item>
+                    ) : null
                 ))}
               </List>
             </Card.Section>
             <Card.Section title="Totals">
               <List>
-                {cart.taxes.map((tax, taxId) => (
+                {taxes.map((tax, taxId) => (
                   <List.Item key={taxId}>
                     TVA {tax.name}% : {tax.value.toFixed(2)}€
                   </List.Item>
                 ))}
                 <List.Item>
-                  {cart.totalAmountIncludingTaxes.toFixed(2)}€ TTC
-                    </List.Item>
+                  24€ TTC
+                </List.Item>
               </List>
             </Card.Section>
           </Card>

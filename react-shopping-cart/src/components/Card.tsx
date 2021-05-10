@@ -4,16 +4,18 @@ import { Layout, ResourceList, Card, Avatar, TextStyle } from '@shopify/polaris'
 import { Product } from "../interfaces/Product"
 
 interface ProductProps {
-  data: Product[];
+  products: Product[];
+  addToBasket: (item: Product) => void;
 }
 
-const CardComponent: React.FC<ProductProps> = ({ data }) => {
+const CardComponent: React.FC<ProductProps> = ({ products, addToBasket }) => {
+
   return (
     <Layout.Section>
       <Card>
         <ResourceList
           resourceName={{ singular: 'customer', plural: 'customers' }}
-          items={data}
+          items={products}
           renderItem={item => {
             const { id, name, description } = item
             const media = (
@@ -22,7 +24,7 @@ const CardComponent: React.FC<ProductProps> = ({ data }) => {
             const shortcutActions = [
               {
                 content: 'Add to basket (+1)',
-                onAction: () => alert('Add to basket'),
+                onAction: () => addToBasket(item),
               },
             ]
             return (
@@ -33,7 +35,6 @@ const CardComponent: React.FC<ProductProps> = ({ data }) => {
                 accessibilityLabel={`View details for ${name}`}
                 shortcutActions={shortcutActions}
                 persistActions={true}
-                onClick={console.log}
               >
                 <h3>
                   <TextStyle variation="strong">{name}</TextStyle>
