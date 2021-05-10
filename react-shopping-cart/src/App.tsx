@@ -43,7 +43,31 @@ const App: React.FC = () => {
   }
 
   const removeFromBasket = (productId: number) => {
-    console.log(productId);
+
+    //   setCart((cart) => {
+    //     const indexOfItemToRemove = cart.findIndex((cartItem) => cartItem.id === productId);
+
+    //     if (indexOfItemToRemove === -1) {
+    //       return cart;
+    //     }
+    //     console.log([
+    //       ...cart.slice(0, indexOfItemToRemove),
+    //       ...cart.slice(indexOfItemToRemove + 1),
+    //     ])
+    //   return [
+    //     ...cart.slice(0, indexOfItemToRemove),
+    //     ...cart.slice(indexOfItemToRemove + 1),
+    //   ];
+    // });
+    const myCart = [...cart]
+    const indexOfItemToRemove = cart.findIndex((cartItem) => cartItem.id === productId);
+    myCart.splice(indexOfItemToRemove, 1)
+    setCart(myCart)
+
+    // if (indexOfItemToRemove === -1) {
+    //   return cart;
+    // }
+
 
   }
 
@@ -68,7 +92,7 @@ const App: React.FC = () => {
                     ? (
                       <List.Item key={productId}>
                         {quantityInBasket(product.id)} × {product.name}&nbsp;
-                        <button onClick={() => removeFromBasket(productId)}>-</button>
+                        <button onClick={() => removeFromBasket(product.id)}>-</button>
                       </List.Item>
                     ) : null
                 ))}
