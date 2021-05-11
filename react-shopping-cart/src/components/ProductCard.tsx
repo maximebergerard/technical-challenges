@@ -8,7 +8,7 @@ interface ProductProps {
   addToBasket: (item: Product) => void;
 }
 
-const CardComponent: React.FC<ProductProps> = ({ products, addToBasket }) => {
+const ProductCard: React.FC<ProductProps> = ({ products, addToBasket }) => {
 
   return (
     <Layout.Section>
@@ -49,4 +49,4 @@ const CardComponent: React.FC<ProductProps> = ({ products, addToBasket }) => {
   )
 }
 
-export { CardComponent }
+export { ProductCard }
