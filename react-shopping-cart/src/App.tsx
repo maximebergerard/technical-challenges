@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import {
   Page,
   Layout,
   Card,
   List,
   TextStyle,
+  TextField,
 } from '@shopify/polaris'
 import { ProductCard } from './components/ProductCard'
 
@@ -44,9 +45,8 @@ const App: React.FC = () => {
 
   const [cart, setCart] = useState<Product[]>([])
   const [taxes, setTaxes] = useState<Array<{ name: number, value: number, }>>([])
-
-  // Total of products prices in cart + total of taxes
-  const totalAmountIncludingTaxes = cart.reduce((total, { price = 0 }) => total + price, 0) + taxes.reduce((total, { value = 0 }) => total + value, 0)
+  const [total, setTotal] = useState<number>(0)
+  const [discountInput, setDiscountInput] = useState<string>('')
 
   const addToBasket = (item: Product) => {
     setCart([...cart, item])
@@ -109,6 +109,23 @@ const App: React.FC = () => {
     return (taxes.filter(item => taxeName === item.name).length * taxeValue)
   }
 
+  const totalAmountIncludingTaxes = () => {
+    // Total of products prices in cart + total of taxes
+    const total =
+      cart.reduce((total, { price = 0 }) => total + price, 0) +
+      taxes.reduce((total, { value = 0 }) => total + value, 0)
+
+    if (discountInput === "Wino") {
+      // Discount code of 20% !!!
+      setTotal(total - total * 20 / 100)
+    } else setTotal(total)
+  }
+
+  const handleTextFieldChange = useCallback(
+    (value) => setDiscountInput(value),
+    [],
+  );
+
   useEffect(() => {
     // @ts-ignore
     const parsedCart = JSON.parse(localStorage.getItem("cart"))
@@ -123,7 +140,12 @@ const App: React.FC = () => {
     // When cart is changed, update user local storage
     localStorage.setItem("cart", JSON.stringify(cart))
     localStorage.setItem("taxes", JSON.stringify(taxes))
+    totalAmountIncludingTaxes()
   }, [cart])
+
+  useEffect(() => {
+    totalAmountIncludingTaxes()
+  }, [discountInput])
 
   return (
     <Page title="React Shopping Cart">
@@ -157,22 +179,31 @@ const App: React.FC = () => {
                 ))}
               </List>
             </Card.Section>
-            {totalAmountIncludingTaxes !== 0 ? (
+            {total !== 0 ? (
               <>
-              <Card.Section title="Taxes">
-                <List>
-                  {taxes.map((tax, taxId) => (
-                    tax.value > 0 ? (
-                      <List.Item key={taxId}>
-                        TVA {tax.name}% : {totalTaxes(tax.name, tax.value).toFixed(2)}.€
-                      </List.Item>
-                    ) : null
-                  ))}
-                </List>
-              </Card.Section>
-              <Card.Section title="Total">
-                <TextStyle variation="strong">{totalAmountIncludingTaxes.toFixed(2)}€</TextStyle>
-              </Card.Section>
+                <Card.Section title="Taxes">
+                  <List>
+                    {taxes.map((tax, taxId) => (
+                      tax.value > 0 ? (
+                        <List.Item key={taxId}>
+                          TVA {tax.name}% : {totalTaxes(tax.name, tax.value).toFixed(2)}€
+                        </List.Item>
+                      ) : null
+                    ))}
+                  </List>
+                </Card.Section>
+                <Card.Section title="Discount code">
+                  <TextField
+                    label="Discount code"
+                    labelHidden
+                    value={discountInput}
+                    onChange={handleTextFieldChange}
+                    placeholder={'D81X62A'}
+                  />
+                </Card.Section>
+                <Card.Section title="Total">
+                  <TextStyle variation="strong">{total.toFixed(2)}€ {discountInput === "Wino" ? "-20% sur votre panier !" : null}</TextStyle>
+                </Card.Section>
               </>
             ) : null}
           </Card>

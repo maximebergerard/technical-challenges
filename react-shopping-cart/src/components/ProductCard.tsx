@@ -24,7 +24,7 @@ const ProductCard: React.FC<ProductProps> = ({ products, addToBasket }) => {
   const filteredProducts = filterProducts(products, inputValue);
 
   return (
-    <Layout.Section>
+    <Layout.Section secondary>
       <Card>
         <ResourceList
           resourceName={{ singular: 'product', plural: 'products' }}
