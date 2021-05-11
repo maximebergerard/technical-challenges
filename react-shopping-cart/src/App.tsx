@@ -161,7 +161,12 @@ const App: React.FC = () => {
                 setTaxes([])
               }
             }}
-            primaryFooterAction={{ content: 'Pay' }}
+            primaryFooterAction={{
+              content: 'Pay',
+              onAction: () => {
+                window.open("https://img.filmsactu.net/datas/films/l/a/la-cite-de-la-peur/n/la-cite-de-la-peur-gif-5c88fa11c7dd3.gif", "_blank")
+              }
+             }}
           >
             <Card.Section title="My products">
               <List>
