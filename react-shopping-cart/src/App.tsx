@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Page,
   Layout,
   Card,
   List,
+  TextStyle,
 } from '@shopify/polaris'
 import { ProductCard } from './components/ProductCard'
 
@@ -13,31 +14,36 @@ const App: React.FC = () => {
   const products: Product[] = [
     {
       id: 0,
-      name: 'Product A',
+      name: 'Bob lumineux',
       description: 'Lorem ipsum dolor sit, amet consectetur',
       price: 12,
       tax: 20,
     },
     {
       id: 1,
-      name: 'Product B',
+      name: 'Super PC portable',
       description: 'Lorem ipsum dolor sit, amet consectetur',
       price: 13,
       tax: 5.5,
     },
     {
       id: 2,
-      name: 'Product C',
+      name: 'iMac dernière génération',
       description: 'Lorem ipsum dolor sit, amet consectetur',
       price: 15,
       tax: 5.5,
     },
+    {
+      id: 3,
+      name: 'Des chaussures qui roulent',
+      description: 'Lorem ipsum dolor sit, amet consectetur',
+      price: 150,
+      tax: 15,
+    }
   ]
 
-  // const taxes: Array<{ name: number, value: number, }> = [{ name: 20, value: 4 }]
-  const [taxes, setTaxes] = useState<Array<{ name: number, value: number, }>>([])
-
   const [cart, setCart] = useState<Product[]>([])
+  const [taxes, setTaxes] = useState<Array<{ name: number, value: number, }>>([])
 
   // Total of products prices in cart + total of taxes
   const totalAmountIncludingTaxes = cart.reduce((total, { price = 0 }) => total + price, 0) + taxes.reduce((total, { value = 0 }) => total + value, 0)
@@ -103,6 +109,22 @@ const App: React.FC = () => {
     return (taxes.filter(item => taxeName === item.name).length * taxeValue)
   }
 
+  useEffect(() => {
+    // @ts-ignore
+    const parsedCart = JSON.parse(localStorage.getItem("cart"))
+    setCart(parsedCart)
+
+    // @ts-ignore
+    const parsedTaxes = JSON.parse(localStorage.getItem("taxes"))
+    setTaxes(parsedTaxes)
+  }, [])
+
+  useEffect(() => {
+    // When cart is changed, update user local storage
+    localStorage.setItem("cart", JSON.stringify(cart))
+    localStorage.setItem("taxes", JSON.stringify(taxes))
+  }, [cart])
+
   return (
     <Page title="React Shopping Cart">
       <Layout>
@@ -119,13 +141,13 @@ const App: React.FC = () => {
             }}
             primaryFooterAction={{ content: 'Pay' }}
           >
-            <Card.Section title="Items">
+            <Card.Section title="My products">
               <List>
                 {products.map((product, productId) => (
                   quantityInBasket(product.id) >= 1
                     ? (
                       <List.Item key={productId}>
-                        {quantityInBasket(product.id)} × {product.name}&nbsp;
+                        {quantityInBasket(product.id)} × <b>{product.name}</b> à {product.price}€/u&emsp;
                         <button onClick={() => {
                           removeFromBasket(product.id)
                           removeTax(product)
@@ -135,20 +157,24 @@ const App: React.FC = () => {
                 ))}
               </List>
             </Card.Section>
-            <Card.Section title="Totals">
-              <List>
-                {taxes.map((tax, taxId) => (
-                  tax.value > 0 ? (
-                    <List.Item key={taxId}>
-                      TVA {tax.name}% : {totalTaxes(tax.name, tax.value).toFixed(2)}.€
-                    </List.Item>
-                  ) : null
-                ))}
-                <List.Item>
-                  {totalAmountIncludingTaxes.toFixed(2)}€ TTC
-                </List.Item>
-              </List>
-            </Card.Section>
+            {totalAmountIncludingTaxes !== 0 ? (
+              <>
+              <Card.Section title="Taxes">
+                <List>
+                  {taxes.map((tax, taxId) => (
+                    tax.value > 0 ? (
+                      <List.Item key={taxId}>
+                        TVA {tax.name}% : {totalTaxes(tax.name, tax.value).toFixed(2)}.€
+                      </List.Item>
+                    ) : null
+                  ))}
+                </List>
+              </Card.Section>
+              <Card.Section title="Total">
+                <TextStyle variation="strong">{totalAmountIncludingTaxes.toFixed(2)}€</TextStyle>
+              </Card.Section>
+              </>
+            ) : null}
           </Card>
         </Layout.Section>
       </Layout>
